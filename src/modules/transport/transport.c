@@ -28,9 +28,14 @@ ZBUS_SUBSCRIBER_DEFINE(transport, CONFIG_MQTT_SAMPLE_TRANSPORT_MESSAGE_QUEUE_SIZ
 /* Forward declarations */
 static const struct smf_state state[];
 static void connect_work_fn(struct k_work *work);
+static void http_client_work_fn(struct k_work *work);
+static void http_server_work_fn(struct k_work *work);
 
 /* Define connection work - Used to handle reconnection attempts to the MQTT broker */
 static K_WORK_DELAYABLE_DEFINE(connect_work, connect_work_fn);
+
+/* Define connection work - Used to handle reconnection attempts to the MQTT broker */
+static K_WORK_DELAYABLE_DEFINE(http_client_work, http_client_work_fn);
 
 /* Define stack_area of application workqueue */
 K_THREAD_STACK_DEFINE(stack_area, CONFIG_MQTT_SAMPLE_TRANSPORT_WORKQUEUE_STACK_SIZE);
@@ -200,11 +205,13 @@ static void disconnected_run(void *o)
 
 	if ((user_object->status == NETWORK_CONNECTED) && (user_object->chan == &NETWORK_CHAN)) {
 
+#if !CONFIG_HTTP_CLIENT_EXAMPLE && !CONFIG_HTTP_SERVER_EXAMPLE
 		/* Wait for 5 seconds to ensure that the network stack is ready before
 		 * attempting to connect to MQTT. This delay is only needed when building for
 		 * Wi-Fi.
 		 */
 		k_work_reschedule_for_queue(&transport_queue, &connect_work, K_SECONDS(5));
+#endif
 	}
 }
 
@@ -310,6 +317,8 @@ static void transport_task(void)
 
 	/* Set initial state */
 	smf_set_initial(SMF_CTX(&s_obj), &state[MQTT_DISCONNECTED]);
+
+	LOG_INF("transport thread init finished");
 
 	while (!zbus_sub_wait(&transport, &chan, K_FOREVER)) {
 

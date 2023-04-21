@@ -12,6 +12,23 @@ config MQTT_SAMPLE_PAYLOAD_CHANNEL_STRING_MAX_SIZE
 	help
 	  Maximum size of the string included messages that are sent over the payload channel.
 
+config HTTP_CLIENT_EXAMPLE
+	bool "Enable HTTP client example"
+	default n
+
+config HTTP_GET_EXAMPLE
+	bool "Enable HTTP client example"
+	default n
+
+config HTTP_SERVER_EXAMPLE
+	bool "Enable HTTP server example"
+	default n
+
+config DUMB_HTTP_SERVER_EXAMPLE
+	bool "Enable dumb HTTP server example"
+	default n
+
+
 rsource "src/modules/trigger/Kconfig.trigger"
 rsource "src/modules/sampler/Kconfig.sampler"
 rsource "src/modules/network/Kconfig.network"

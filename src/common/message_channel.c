@@ -18,6 +18,7 @@ ZBUS_CHAN_DEFINE(TRIGGER_CHAN,			/* Name */
 		 ZBUS_MSG_INIT(0)		/* Initial value {0} */
 );
 
+#if CONFIG_SMF
 ZBUS_CHAN_DEFINE(PAYLOAD_CHAN,
 		 struct payload,
 		 NULL,
@@ -30,9 +31,26 @@ ZBUS_CHAN_DEFINE(NETWORK_CHAN,
 		 enum network_status,
 		 NULL,
 		 NULL,
-		 ZBUS_OBSERVERS(transport IF_ENABLED(CONFIG_MQTT_SAMPLE_LED, (, led)), sampler),
+		 ZBUS_OBSERVERS(IF_ENABLED(transport, IF_ENABLED(CONFIG_MQTT_SAMPLE_LED, (, led)), sampler),
 		 ZBUS_MSG_INIT(0)
 );
+#else
+ZBUS_CHAN_DEFINE(PAYLOAD_CHAN,
+		 struct payload,
+		 NULL,
+		 NULL,
+		 ZBUS_OBSERVERS(sampler),
+		 ZBUS_MSG_INIT(0)
+);
+
+ZBUS_CHAN_DEFINE(NETWORK_CHAN,
+		 enum network_status,
+		 NULL,
+		 NULL,
+		 ZBUS_OBSERVERS(sampler),
+		 ZBUS_MSG_INIT(0)
+);
+#endif
 
 ZBUS_CHAN_DEFINE(FATAL_ERROR_CHAN,
 		 int,
